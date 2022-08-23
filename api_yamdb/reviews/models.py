@@ -1,5 +1,6 @@
-from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class Review(models.Model):
     title = models.ForeignKey(
@@ -18,6 +19,7 @@ class Review(models.Model):
         related_name='reviews'
     )
     score = models.PositiveSmallIntegerField(
+        default=0,
         verbose_name='Рейтинг',
         validators=[
             MinValueValidator(1, 'Допустимы значения от 1 до 10'),
@@ -34,12 +36,6 @@ class Review(models.Model):
         verbose_name = 'Рецензия'
         verbose_name_plural = 'Рецензии'
         ordering = ['pub_date']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['title', 'author'],
-                name='unique_review'
-            ),
-        ]
 
 
 class Comment(models.Model):
