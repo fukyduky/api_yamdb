@@ -10,7 +10,6 @@ class Category(models.Model):
         max_length=256,
         verbose_name="Название категории",
     )
-    # Поле slug каждой категории должно быть уникальным.
     slug = models.SlugField(
         max_length=50,
         unique=True,
@@ -33,7 +32,6 @@ class Genre(models.Model):
         max_length=256,
         verbose_name="Название жанра",
     )
-    # Поле slug каждой категории должно быть уникальным.
     slug = models.SlugField(
         max_length=50,
         unique=True,
