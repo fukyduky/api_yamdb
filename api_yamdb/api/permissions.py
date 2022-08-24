@@ -13,3 +13,12 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
             return True
 
         return obj.author == request.user
+
+
+class AdminOrReadOnly(permissions.BasePermission):
+    # Право для всех на чтение
+    # Право админа на создание категории, жанра, произведения
+    def has_permission(self, request, view):
+        return (request.user.is_authenticated
+                and request.user.is_administrator
+                or request.method in permissions.SAFE_METHODS)
