@@ -110,10 +110,6 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-<<<<<<< HEAD
-=======
-    # только плохие и очень плохие комменты
->>>>>>> caa45d69abafdb3b33858a78d295c37b388059f9
     review = models.ForeignKey(
         Review,
         verbose_name='Рецензия',
