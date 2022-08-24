@@ -4,7 +4,7 @@ from .views import UsersViewSet
 
 app_name = 'api'
 
-router = DefaultRouter()
+v1_router = DefaultRouter()
 
 v1_router.register(
     'users',
@@ -14,6 +14,6 @@ v1_router.register(
 
 urlpatterns = [
     path('v1/auth/', include('users.urls')),
-    path('v1/', include(router.urls)),
+    path('v1/', include(v1_router.urls)),
 ]
    
