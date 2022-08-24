@@ -74,6 +74,7 @@ class Title(models.Model):
 
 
 class Review(models.Model):
+    """ Отзывы на произведения"""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -110,6 +111,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
+    """ Комментарии к отзывам"""
     review = models.ForeignKey(
         Review,
         verbose_name='Рецензия',
