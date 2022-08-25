@@ -1,15 +1,49 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from django_filters import CharFilter, FilterSet, NumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins
-from reviews.models import Review, Title, Genre, Category
+from reviews.models import Review, Title, Genre, Category, User
 from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from api.serializers import (
+    AdminsSerializer, UsersSerializer,
     ReviewSerializer, CommentSerializer,
     TitleSerializer, CategorySerializer, GenreSerializer)
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UsersSerializer
+    lookup_field = 'username'
+    search_fields = ('username', )
+
+    @action(
+        methods=['PATCH', 'GET'],
+        detail=False,
+        permission_classes=[IsAuthenticated],
+        url_path='me')
+    def get_current_user_info(self, request):
+        serializer = UsersSerializer(request.user)
+        if request.method == 'PATCH':
+            if request.user.is_admin:
+                serializer = AdminsSerializer(
+                    request.user,
+                    data=request.data,
+                    partial=True)
+            else:
+                serializer = UsersSerializer(
+                    request.user,
+                    data=request.data,
+                    partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.data)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
