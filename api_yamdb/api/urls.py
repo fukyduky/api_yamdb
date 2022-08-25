@@ -4,7 +4,6 @@ from . import views
 
 app_name = 'api'
 
-
 v1_router = DefaultRouter()
 v1_router.register(
     'users',
