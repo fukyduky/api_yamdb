@@ -6,11 +6,14 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class User(AbstractUser):
 
-    class Roles(models.TextChoices):
-        """Абстрактный класс ролей"""
-        USER = 'user', 'User'
-        MODERATOR = 'moderator', 'Moderator'
-        ADMIN = 'admin', 'Admin'
+    ADMIN = 'administrator'
+    MODERATOR = 'moderator'
+    USER = 'user'
+    ROLES = (
+        (ADMIN, 'Administrator'),
+        (MODERATOR, 'Moderator'),
+        (USER, 'User'),
+    )
 
     username = models.CharField(
         'Имя пользователя',
@@ -30,8 +33,8 @@ class User(AbstractUser):
     role = models.CharField(
         'Роль пользователя',
         max_length=150,
-        choices=Roles.choices,
-        default=Roles.USER
+        choices=ROLES,
+        default=USER
     )
     confirmation_code = models.CharField(
         'Код подтверждения',
@@ -137,8 +140,8 @@ class Review(models.Model):
         default=0,
         verbose_name='Рейтинг',
         validators=[
-            MinValueValidator(1, 'Допустимы значения от 1 до 10'),
-            MaxValueValidator(10, 'Допустимы значения от 1 до 10')
+            MinValueValidator(1, 'Значения от 1 до 10'),
+            MaxValueValidator(10, 'Значения от 1 до 10')
         ]
     )
     pub_date = models.DateTimeField(
