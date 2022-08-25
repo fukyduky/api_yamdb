@@ -1,19 +1,17 @@
-from rest_framework import viewsets, filters, status
-from django.shortcuts import get_object_or_404
+from api.permissions import AdminOrReadOnly, IsAuthorOrReadOnly
+from api.serializers import (AdminsSerializer, CategorySerializer,
+                             CommentSerializer, GenreSerializer,
+                             ReviewSerializer, TitleSerializer,
+                             UsersSerializer)
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from django_filters import CharFilter, FilterSet, NumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins
-from reviews.models import Review, Title, Genre, Category, User
-from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly
+from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-
-from api.serializers import (
-    AdminsSerializer, UsersSerializer,
-    ReviewSerializer, CommentSerializer,
-    TitleSerializer, CategorySerializer, GenreSerializer)
+from reviews.models import Category, Genre, Review, Title, User
 
 
 class UsersViewSet(viewsets.ModelViewSet):
