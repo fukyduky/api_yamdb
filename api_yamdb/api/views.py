@@ -28,12 +28,12 @@ def registration(request):
     serializer.save()
     user = get_object_or_404(
         User,
-        username=serializer.validated_data["username"]
+        username=serializer.validated_data['username']
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
-        subject="YaMDb registration",
-        message=f"Your confirmation code: {confirmation_code}",
+        subject='Регистрация на YaMDB',
+        message=f'Ваш код подтверждения: {confirmation_code}',
         from_email=None,
         recipient_list=[user.email],
     )
@@ -55,7 +55,7 @@ def token(request):
         user, serializer.validated_data["confirmation_code"]
     ):
         token = AccessToken.for_user(user)
-        return Response({"token": str(token)}, status=status.HTTP_200_OK)
+        return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
