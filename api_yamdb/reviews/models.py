@@ -42,6 +42,13 @@ class User(AbstractUser):
         blank=True
     )
 
+    def is_moderator(self):
+        return self.role == self.MODERATOR
+
+    
+    def is_administrator(self):
+        return self.role == self.ADMIN
+
     class Meta:
         verbose_name = 'Пользователь'
 

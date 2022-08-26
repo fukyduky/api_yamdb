@@ -1,19 +1,63 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, permissions
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from django_filters import CharFilter, FilterSet, NumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import mixins
+from rest_framework import mixins, generics
 from reviews.models import Review, Title, Genre, Category, User
 from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly
-from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
+from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api.serializers import (
     AdminsSerializer, UsersSerializer,
     ReviewSerializer, CommentSerializer,
-    TitleSerializer, CategorySerializer, GenreSerializer)
+    TitleSerializer, CategorySerializer, GenreSerializer,
+    RegistrationSerializer, TokenSerializer)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def registration(request):
+    serializer = RegistrationSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    serializer.save()
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data["username"]
+    )
+    confirmation_code = default_token_generator.make_token(user)
+    send_mail(
+        subject="YaMDb registration",
+        message=f"Your confirmation code: {confirmation_code}",
+        from_email=None,
+        recipient_list=[user.email],
+    )
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes([permissions.AllowAny])
+def token(request):
+    serializer = TokenSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    user = get_object_or_404(
+        User,
+        username=serializer.validated_data["username"]
+    )
+
+    if default_token_generator.check_token(
+        user, serializer.validated_data["confirmation_code"]
+    ):
+        token = AccessToken.for_user(user)
+        return Response({"token": str(token)}, status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UsersViewSet(viewsets.ModelViewSet):
@@ -30,7 +74,7 @@ class UsersViewSet(viewsets.ModelViewSet):
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
-            if request.user.is_admin:
+            if request.user.is_administrator():
                 serializer = AdminsSerializer(
                     request.user,
                     data=request.data,
@@ -101,6 +145,17 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = TitleFilterSet
     ordering_fields = ('name', 'year')
+    def perform_create(self, serializer):
+        category = generics.get_object_or_404(
+            Category, slug=self.request.data.get("category")
+        )
+        genre = Genre.objects.filter(
+            slug__in=self.request.data.getlist("genre")
+        )
+        serializer.save(category=category, genre=genre)
+
+    def perform_update(self, serializer):
+        self.perform_create(serializer)
 
 
 class CreateDestroyListViewSet(
