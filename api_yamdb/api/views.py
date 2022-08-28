@@ -1,4 +1,4 @@
-from api.permissions import AdminOrReadOnly, IsAuthorOrReadOnly
+from api.permissions import IsAdminOrReadOnly, IsAuthorModeratorAdminOrReadOnly, IsAdmin
 from api.serializers import (AdminsSerializer, CategorySerializer,
                              CommentSerializer, GenreSerializer,
                              ReviewSerializer, TitleSerializer,

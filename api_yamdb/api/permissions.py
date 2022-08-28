@@ -1,24 +1,26 @@
 from rest_framework import permissions
 
 
-class IsAuthorOrReadOnly(permissions.BasePermission):
-    """
-    Object-level permission to only allow owners of an object to edit it.
-    Assumes the model instance has an `author` attribute.
-    """
-    message = 'Изменение чужого контента запрещено!'
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-
-        return obj.author == request.user
-
-
-class AdminOrReadOnly(permissions.BasePermission):
-    # Право для всех на чтение
-    # Право админа на создание категории, жанра, произведения
+class IsAdmin(permissions.BasePermission):
     def has_permission(self, request, view):
-        return (request.user.is_authenticated
-                and request.user.is_administrator()
-                or request.method in permissions.SAFE_METHODS)
+        return request.user.is_authenticated and request.user.is_admin
+
+
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.user.is_authenticated and request.user.is_admin
+        )
+
+
+class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.method in permissions.SAFE_METHODS
+            or request.method == 'POST' and request.user.is_authenticated
+            or obj.author == request.user
+            or request.user.is_admin
+            or request.user.is_moderator
+        )
+        
