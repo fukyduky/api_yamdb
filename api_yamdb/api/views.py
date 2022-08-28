@@ -51,6 +51,7 @@ def registration(request):
 
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+#не получается зарегистрироваться
 
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
@@ -70,6 +71,7 @@ def token(request):
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# не получается получить токен
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
