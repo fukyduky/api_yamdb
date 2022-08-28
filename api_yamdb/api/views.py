@@ -16,9 +16,8 @@ from rest_framework.response import Response
 from reviews.models import Category, Genre, Review, Title, User
 from rest_framework import mixins, generics
 from reviews.models import Review, Title, Genre, Category, User
-from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly
+from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly, IsAdmin
 from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
@@ -78,16 +77,17 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     lookup_field = 'username'
     search_fields = ('username', )
+    permission_classes = (IsAdmin,)
 
     @action(
         methods=['PATCH', 'GET'],
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=[IsAdmin],
         url_path='me')
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
-            if request.user.is_administrator():
+            if request.user.is_admin():
                 serializer = AdminsSerializer(
                     request.user,
                     data=request.data,

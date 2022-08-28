@@ -63,8 +63,7 @@ class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username', 'email',
-            'bio', 'role', 'confirmation_code')
+            'username', 'email', 'role', 'first_name', 'last_name', 'bio')
         read_only_field = ('role',)
 
 
@@ -72,9 +71,7 @@ class AdminsSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            'username', 'email',
-            'bio', 'role', 'confirmation_code')
-
+            'username', 'email', 'role', 'first_name', 'last_name', 'bio')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -126,8 +123,7 @@ class TitleSerializer(serializers.ModelSerializer):
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        exclude = ("id",)
-        lookup_field = "slug"
+        fields = ('name', 'slug')
 
 
 class CategorySerializer(serializers.ModelSerializer):
