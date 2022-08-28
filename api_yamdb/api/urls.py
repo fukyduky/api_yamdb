@@ -36,9 +36,6 @@ v1_router.register(r'titles',
 
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-<<<<<<< HEAD
-=======
     path('v1/auth/signup/', views.registration, name='registration'), #НУЖНО ДОДЕЛАТЬ, НО
     path('v1/auth/token/', views.token, name='token'),         #ЭНДПОЙНТЫ ВЕРНЫЕ
->>>>>>> ada565068263a13ced17cb7787a010c0e48c6b52
 ]

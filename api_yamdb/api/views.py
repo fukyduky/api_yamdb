@@ -1,24 +1,19 @@
-<<<<<<< HEAD
 from api.permissions import AdminOrReadOnly, IsAuthorOrReadOnly
 from api.serializers import (AdminsSerializer, CategorySerializer,
                              CommentSerializer, GenreSerializer,
                              ReviewSerializer, TitleSerializer,
                              UsersSerializer)
-=======
+
 from rest_framework import viewsets, filters, status, permissions
 from django.shortcuts import get_object_or_404
->>>>>>> ada565068263a13ced17cb7787a010c0e48c6b52
 from django.db.models import Avg
-from django.shortcuts import get_object_or_404
 from django_filters import CharFilter, FilterSet, NumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
-<<<<<<< HEAD
 from rest_framework import filters, mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from reviews.models import Category, Genre, Review, Title, User
-=======
 from rest_framework import mixins, generics
 from reviews.models import Review, Title, Genre, Category, User
 from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly
@@ -74,7 +69,6 @@ def token(request):
         return Response({'token': str(token)}, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
->>>>>>> ada565068263a13ced17cb7787a010c0e48c6b52
 
 
 class UsersViewSet(viewsets.ModelViewSet):

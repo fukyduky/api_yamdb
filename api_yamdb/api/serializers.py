@@ -1,9 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-<<<<<<< HEAD
 from reviews.models import Category, Comment, Genre, Review, Title, User
-=======
 from rest_framework.validators import UniqueValidator
 
 
@@ -39,7 +37,6 @@ class TokenSerializer(serializers.Serializer):
         ]
     )
     confirmation_code = serializers.CharField(max_length=150)
->>>>>>> ada565068263a13ced17cb7787a010c0e48c6b52
 
 
 def get_tokens_for_user(user):
