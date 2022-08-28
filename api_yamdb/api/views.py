@@ -9,12 +9,13 @@ from rest_framework.response import Response
 from reviews.models import Category, Genre, Review, Title, User
 from rest_framework import mixins, generics
 from reviews.models import Review, Title, Genre, Category, User
-from api.permissions import IsAuthorOrReadOnly, AdminOrReadOnly, IsAdmin
+from api.permissions import AuthoModeratorAdmin, IsAdminUserOrReadOnly, AdminOnly
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework.permissions import IsAuthenticated
 
 from api.serializers import (
     AdminsSerializer, UsersSerializer,
@@ -70,17 +71,17 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UsersSerializer
     lookup_field = 'username'
     search_fields = ('username', )
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAuthenticated, AdminOnly,) # изменила
 
     @action(
         methods=['PATCH', 'GET'],
         detail=False,
-        permission_classes=[IsAdmin],
+        permission_classes=[IsAuthenticated],
         url_path='me')
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
-            if request.user.is_admin():
+            if request.user.is_admin: # убрала скобки, ломалось булевое знаение
                 serializer = AdminsSerializer(
                     request.user,
                     data=request.data,
@@ -117,7 +118,7 @@ class TitleFilterSet(FilterSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(rating=Avg('reviews__score'))
     serializer_class = TitleSerializer
-    permission_classes = [AdminOrReadOnly]
+    permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     filterset_class = TitleFilterSet
     ordering = ('id',)
@@ -136,7 +137,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = (AuthoModeratorAdmin,) 
     ordering = ('id',) # добавила
 
     def get_queryset(self):
@@ -150,7 +151,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = (AuthoModeratorAdmin,)
     ordering = ('-pub_date',) # добавила
 
     def get_queryset(self):
@@ -180,7 +181,7 @@ class CategoryViewSet(CreateDestroyListViewSet):
     lookup_field = 'slug'
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [AdminOrReadOnly]
+    permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     # Поиск по названию категории
     search_fields = ('name',)
@@ -190,7 +191,7 @@ class CategoryViewSet(CreateDestroyListViewSet):
 class GenreViewSet(CreateDestroyListViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [AdminOrReadOnly]
+    permission_classes = (IsAdminUserOrReadOnly,)
     filter_backends = (filters.SearchFilter,)
     # Поиск по названию жанра
     search_fields = ('name',)
