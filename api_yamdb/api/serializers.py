@@ -73,6 +73,17 @@ class AdminsSerializer(serializers.ModelSerializer):
         fields = (
             'username', 'email', 'role', 'first_name', 'last_name', 'bio')
 
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = ('name', 'slug')
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ('name', 'slug')
+
 
 class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(required=True,
@@ -90,16 +101,16 @@ class TitleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
-        fields = ('name', 'slug')
+class TitleReadSerializer(serializers.ModelSerializer):
+    category = CategorySerializer(read_only=True)
+    genre = GenreSerializer(many=True, read_only=True)
+    rating = serializers.IntegerField(read_only=True)
+    year = serializers.IntegerField(read_only=True)
+    name = serializers.CharField(read_only=True)
 
-
-class CategorySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Category
-        fields = ('name', 'slug')
+        model = Title
+        fields = '__all__'
 
 
 class ReviewSerializer(serializers.ModelSerializer):

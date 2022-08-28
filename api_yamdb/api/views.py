@@ -21,7 +21,7 @@ from api.serializers import (
     AdminsSerializer, UsersSerializer,
     ReviewSerializer, CommentSerializer,
     TitleSerializer, CategorySerializer, GenreSerializer,
-    RegistrationSerializer, TokenSerializer)
+    RegistrationSerializer, TokenSerializer, TitleReadSerializer)
 
 
 @api_view(["POST"])
@@ -105,10 +105,14 @@ class TitleFilterSet(FilterSet):
     # year(фильтрует по году)
     # https://django-filter.readthedocs.io/en/stable/ref/filters.html
 
-    category = CharFilter(field_name='category__slug')
-    genre = CharFilter(field_name='genre__slug')
-    name = CharFilter(field_name='name')
-    year = NumberFilter(field_name='year')
+    genre = CharFilter(
+        field_name='genre__slug', lookup_expr='icontains')
+    category = CharFilter(
+        field_name='category__slug', lookup_expr='icontains')
+    name = CharFilter(
+        field_name='name', lookup_expr='contains')
+    year = NumberFilter(
+        field_name='year', lookup_expr='exact')
 
     class Meta:
         model = Title
@@ -133,6 +137,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         self.perform_create(serializer)
+    
+    def get_serializer_class(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            return TitleReadSerializer
+        return TitleSerializer
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
