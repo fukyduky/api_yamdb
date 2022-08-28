@@ -1,7 +1,45 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
+<<<<<<< HEAD
 from reviews.models import Category, Comment, Genre, Review, Title, User
+=======
+from rest_framework.validators import UniqueValidator
+
+
+class RegistrationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        required=True,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+    username = serializers.CharField(
+        required=True,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError('Нельзя использовать "me" как имя пользователя')
+        return value
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField(
+        required=True,
+        validators=[
+            UniqueValidator(queryset=User.objects.all())
+        ]
+    )
+    confirmation_code = serializers.CharField(max_length=150)
+>>>>>>> ada565068263a13ced17cb7787a010c0e48c6b52
 
 
 def get_tokens_for_user(user):
