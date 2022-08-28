@@ -3,6 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from . import views
 
+from .views import send_confirmation_code, send_jwt_token
+
 app_name = 'api'
 
 v1_router = DefaultRouter()
@@ -34,8 +36,15 @@ v1_router.register(r'titles',
     basename='title'
 )
 
+auth_patterns = [
+    path('email/', send_confirmation_code),
+    path('token/', send_jwt_token),
+]
+
+
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/signup/', views.registration, name='registration'), #НУЖНО ДОДЕЛАТЬ, НО
     path('v1/auth/token/', views.token, name='token'),         #ЭНДПОЙНТЫ ВЕРНЫЕ
+    path('v1/auth/', include(auth_patterns)),
 ]

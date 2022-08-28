@@ -74,7 +74,6 @@ class AdminsSerializer(serializers.ModelSerializer):
             'username', 'email', 'role', 'first_name', 'last_name', 'bio')
 
 
-
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
@@ -99,33 +98,25 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(
-        slug_field="slug",
-        many=True,
-        queryset=Genre.objects.all()
-    )
-    category = serializers.SlugRelatedField(
-        slug_field="slug",
-        queryset=Category.objects.all()
-    )
+    category = serializers.SlugRelatedField(required=True,
+                                            slug_field='slug',
+                                            queryset=Category.objects.all())
+    genre = serializers.SlugRelatedField(required=True,
+                                         many=True,
+                                         slug_field='slug',
+                                         queryset=Genre.objects.all())
+    year = serializers.IntegerField(required=True)
+    name = serializers.CharField(required=True)
 
     class Meta:
         model = Title
-        fields = (
-            "id",
-            "name",
-            "year",
-            "description",
-            "genre",
-            "category",
-        )
+        fields = '__all__'
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        exclude = ("id",)
-        lookup_field = "slug"
+        fields = ('name', 'slug')
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -2,17 +2,18 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
+# вынесла из класса
+USER = 'user'
+ADMIN = 'admin'
+MODERATOR = 'moderator'
+
+ROLES = [
+    (USER, USER),
+    (ADMIN, ADMIN),
+    (MODERATOR, MODERATOR),
+]
 
 class User(AbstractUser):
-
-    ADMIN = 'administrator'
-    MODERATOR = 'moderator'
-    USER = 'user'
-    ROLES = (
-        (ADMIN, 'Administrator'),
-        (MODERATOR, 'Moderator'),
-        (USER, 'User'),
-    )
 
     username = models.CharField(
         'Имя пользователя',
@@ -41,19 +42,25 @@ class User(AbstractUser):
         blank=True
     )
     
-    def is_administrator(self):
-        return self.role == self.ADMIN
+    # https://www.freecodecamp.org/news/python-property-decorator/
+    # https://www.codecamp.ru/blog/python-property-objects/
+    # про декоратор
+    @property
+    def is_user(self):
+        return self.role == USER
 
+    @property
+    def is_admin(self):
+        return self.role == ADMIN
 
+    @property
     def is_moderator(self):
-        return self.role == self.MODERATOR
-
-    
-    def is_administrator(self):
-        return self.role == self.ADMIN
+        return self.role == MODERATOR
 
     class Meta:
+        ordering = ('username',)
         verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.username
@@ -69,6 +76,7 @@ class Category(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
+        db_index=True, # добавила
         verbose_name="Идентификатор категории",
     )
 
@@ -91,6 +99,7 @@ class Genre(models.Model):
     slug = models.SlugField(
         max_length=50,
         unique=True,
+        db_index=True, # добавила
         verbose_name="Идентификатор жанра",
     )
 
@@ -104,26 +113,39 @@ class Genre(models.Model):
 
 
 class Title(models.Model):
-    """Произведения, к которым пишут отзывы"""
-
-    name = models.CharField("Название", max_length=50)
-    year = models.IntegerField("Год выпуска")
-    description = models.CharField("Описание", max_length=256)
-    genre = models.ManyToManyField(Genre)
+    name = models.CharField(
+        'Название',
+        max_length=50,
+        db_index=True
+    )
+    year = models.IntegerField(
+        'Год выпуска',
+    )
     category = models.ForeignKey(
         Category,
-        blank=True,
-        null=True,
         on_delete=models.SET_NULL,
-        related_name="category",
-        verbose_name="Категория",
+        related_name='titles',
+        verbose_name='Категория',
         help_text="Категория, к которой относится произведение",
+        null=True,
+        blank=True
+    )
+    description = models.TextField(
+        'Описание',
+        max_length=256,
+        null=True,
+        blank=True
+    )
+    genre = models.ManyToManyField(
+        Genre,
+        related_name='titles',
+        verbose_name='Жанр'
     )
 
     class Meta:
         ordering = ["name"]
-        verbose_name = "Произведение"
-        verbose_name_plural = "Произведения"
+        verbose_name = 'Произведение'
+        verbose_name_plural = 'Произведения'
 
     def __str__(self):
         return self.name

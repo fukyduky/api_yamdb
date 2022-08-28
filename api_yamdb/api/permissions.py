@@ -1,26 +1,42 @@
 from rest_framework import permissions
 
 
-class IsAdmin(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.is_admin
+class IsAuthorOrReadOnly(permissions.BasePermission):
+    """
+    Object-level permission to only allow owners of an object to edit it.
+    Assumes the model instance has an `author` attribute.
+    """
+    message = 'Изменение чужого контента запрещено!'
 
-
-class IsAdminOrReadOnly(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.user.is_authenticated and request.user.is_admin
-        )
-
-
-class IsAuthorModeratorAdminOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        return (
-            request.method in permissions.SAFE_METHODS
-            or request.method == 'POST' and request.user.is_authenticated
-            or obj.author == request.user
-            or request.user.is_admin
-            or request.user.is_moderator
-        )
-        
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.author == request.user
+
+
+class AdminOrReadOnly(permissions.BasePermission):
+    # Право для всех на чтение
+    # Право админа на создание категории, жанра, произведения
+    def has_permission(self, request, view):
+        return (request.user.is_authenticated
+                and request.user.is_admin
+                or request.method in permissions.SAFE_METHODS)
+
+
+class IsAdmin(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        return (request.user.is_authenticated
+                and (request.user.is_admin
+                     or request.user.is_superuser))
+
+
+class IsUser(permissions.BasePermission):
+    allowed_user_roles = ('user', )
+
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            if request.user.role in self.allowed_user_roles:
+                return True
+        return False
