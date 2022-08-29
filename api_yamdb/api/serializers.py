@@ -26,7 +26,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value == 'me':
-            raise serializers.ValidationError('Нельзя использовать "me" как имя пользователя')
+            raise serializers.ValidationError(
+                'Нельзя использовать "me" как имя пользователя'
+            )
         return value
 
 
@@ -73,6 +75,7 @@ class AdminsSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'username', 'email', 'role', 'first_name', 'last_name', 'bio')
+
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
@@ -132,8 +135,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         if request.method == 'POST':
             if Review.objects.filter(title=title, author=author).exists():
                 raise ValidationError(
-                    'Нельзя оставлять 2 отзыва на одно произведение'    
-            )
+                    'Нельзя оставлять 2 отзыва на одно произведение')
         return data
 
     class Meta:

@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-# вынесла из класса
+
 USER = 'user'
 ADMIN = 'admin'
 MODERATOR = 'moderator'
@@ -13,8 +13,9 @@ ROLES = [
     (MODERATOR, MODERATOR),
 ]
 
-class User(AbstractUser):
 
+class User(AbstractUser):
+    """Пользователи"""
     username = models.CharField(
         'Имя пользователя',
         max_length=150,
@@ -41,7 +42,7 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
-    
+
     # https://www.freecodecamp.org/news/python-property-decorator/
     # https://www.codecamp.ru/blog/python-property-objects/
     # про декоратор
@@ -68,22 +69,21 @@ class User(AbstractUser):
 
 class Category(models.Model):
     """Категории (типы) произведений («Фильмы», «Книги», «Музыка»)"""
-
     name = models.CharField(
         max_length=256,
-        verbose_name="Название категории",
+        verbose_name='Название категории',
     )
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        db_index=True, # добавила
-        verbose_name="Идентификатор категории",
+        db_index=True,
+        verbose_name='Идентификатор категории',
     )
 
     class Meta:
-        ordering = ["name"]
-        verbose_name = "Категория"
-        verbose_name_plural = "Категории"
+        ordering = ['name']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
@@ -94,25 +94,26 @@ class Genre(models.Model):
 
     name = models.CharField(
         max_length=256,
-        verbose_name="Название жанра",
+        verbose_name='Название жанра',
     )
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        db_index=True, # добавила
-        verbose_name="Идентификатор жанра",
+        db_index=True,
+        verbose_name='Идентификатор жанра',
     )
 
     class Meta:
-        ordering = ["name"]
-        verbose_name = "Жанр"
-        verbose_name_plural = "Жанры"
+        ordering = ['name']
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name
 
 
 class Title(models.Model):
+    """Произведения, к которым пишут отзывы"""
     name = models.CharField(
         'Название',
         max_length=50,
@@ -126,7 +127,7 @@ class Title(models.Model):
         on_delete=models.SET_NULL,
         related_name='titles',
         verbose_name='Категория',
-        help_text="Категория, к которой относится произведение",
+        help_text='Категория, к которой относится произведение',
         null=True,
         blank=True
     )
@@ -143,7 +144,7 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
@@ -152,7 +153,7 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    """ Отзывы на произведения"""
+    """Отзывы на произведения"""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -196,7 +197,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    """ Комментарии к отзывам"""
+    """Комментарии к отзывам"""
     review = models.ForeignKey(
         Review,
         verbose_name='Рецензия',
