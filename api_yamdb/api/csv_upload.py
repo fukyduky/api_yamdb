@@ -4,15 +4,14 @@ from unicodedata import category
 from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
 
-from api_yamdb.reviews.models import Category
+from reviews.models import Category
 
 from . import serializers, views
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from reviews import models
 
-fs = FileSystemStorage(location='tmp/')
+fs = FileSystemStorage(location='static/data/')
 
 
 @action(detail=False, methods=['POST'])

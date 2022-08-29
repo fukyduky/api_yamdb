@@ -2,7 +2,6 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-
 USER = 'user'
 ADMIN = 'admin'
 MODERATOR = 'moderator'
@@ -43,9 +42,6 @@ class User(AbstractUser):
         blank=True
     )
 
-    # https://www.freecodecamp.org/news/python-property-decorator/
-    # https://www.codecamp.ru/blog/python-property-objects/
-    # про декоратор
     @property
     def is_user(self):
         return self.role == USER
@@ -190,10 +186,9 @@ class Review(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
-                name='unique_review'
+                name='single_review'
             ),
         ]
-# https://docs.djangoproject.com/en/4.1/ref/models/constraints/#uniqueconstraint
 
 
 class Comment(models.Model):

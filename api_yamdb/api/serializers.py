@@ -1,9 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework_simplejwt.tokens import RefreshToken
-from reviews.models import Category, Comment, Genre, Review, Title, User
-from rest_framework.validators import UniqueValidator
 from rest_framework.exceptions import ValidationError
+from rest_framework.validators import UniqueValidator
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -35,31 +34,8 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class TokenSerializer(serializers.Serializer):
     username = serializers.CharField(
         required=True,
-        validators=[
-            UniqueValidator(queryset=User.objects.all())
-        ]
     )
     confirmation_code = serializers.CharField(max_length=150)
-
-
-def get_tokens_for_user(user):
-    refresh = RefreshToken.for_user(user)
-
-    return {
-        'refresh': str(refresh),
-        'access': str(refresh.access_token), }
-
-
-class EmailAuthSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    confirmation_code = serializers.CharField(max_length=150)
-
-    def validate(self, data):
-        user = get_object_or_404(
-            User, confirmation_code=data['confirmation_code'],
-            email=data['email']
-        )
-        return get_tokens_for_user(user)
 
 
 class UsersSerializer(serializers.ModelSerializer):
@@ -90,13 +66,17 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    category = serializers.SlugRelatedField(required=True,
-                                            slug_field='slug',
-                                            queryset=Category.objects.all())
-    genre = serializers.SlugRelatedField(required=True,
-                                         many=True,
-                                         slug_field='slug',
-                                         queryset=Genre.objects.all())
+    category = serializers.SlugRelatedField(
+        required=True,
+        slug_field='slug',
+        queryset=Category.objects.all()
+    )
+    genre = serializers.SlugRelatedField(
+        required=True,
+        many=True,
+        slug_field='slug',
+        queryset=Genre.objects.all()
+    )
     year = serializers.IntegerField(required=True)
     name = serializers.CharField(required=True)
 
@@ -128,9 +108,9 @@ class ReviewSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, data):
-        request = self.context['request']
+        request = self.context.get('request')
         author = request.user
-        title_id = self.context['view'].kwargs.get('title_id')
+        title_id = self.context.get('view').kwargs.get('title_id')
         title = get_object_or_404(Title, pk=title_id)
         if request.method == 'POST':
             if Review.objects.filter(title=title, author=author).exists():

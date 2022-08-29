@@ -1,30 +1,26 @@
-from rest_framework import (
-    filters, mixins, status, viewsets, generics, permissions)
-from rest_framework.decorators import action, api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from django.shortcuts import get_object_or_404
+from api.permissions import (AdminOnly, AuthorModeratorAdmin,
+                             IsAdminUserOrReadOnly)
+from api.serializers import (AdminsSerializer, CategorySerializer,
+                             CommentSerializer, GenreSerializer,
+                             RegistrationSerializer, ReviewSerializer,
+                             TitleReadSerializer, TitleSerializer,
+                             TokenSerializer, UsersSerializer)
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
 from django.db.models import Avg
+from django.shortcuts import get_object_or_404
 from django_filters import CharFilter, FilterSet, NumberFilter
 from django_filters.rest_framework import DjangoFilterBackend
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
+from rest_framework import (filters, generics, mixins, permissions, status,
+                            viewsets)
+from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
-from api.permissions import (
-    AuthorModeratorAdmin, IsAdminUserOrReadOnly, AdminOnly)
 from reviews.models import Category, Genre, Title, User
-from api.serializers import (
-    AdminsSerializer, UsersSerializer,
-    ReviewSerializer, CommentSerializer,
-    TitleSerializer, CategorySerializer, GenreSerializer,
-    RegistrationSerializer, TokenSerializer, TitleReadSerializer)
 
 
 class CreateDestroyListViewSet(
-    # Набор представлений, который по умолчанию
-    # предоставляет операции «create ()», «destroy ()» и «list ()».
-    # https://russianblogs.com/article/84681093457/
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
     mixins.ListModelMixin,
@@ -50,7 +46,6 @@ def registration(request):
         from_email=None,
         recipient_list=[user.email],
     )
-
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -98,13 +93,6 @@ class UsersViewSet(viewsets.ModelViewSet):
 
 
 class TitleFilterSet(FilterSet):
-    # Фильтры на Title:
-    # category (фильтрует по полю slug категории),
-    # genre (фильтрует по полю slug жанра),
-    # name (фильтрует по названию произведения),
-    # year (фильтрует по году)
-    # https://django-filter.readthedocs.io/en/stable/ref/filters.html
-
     genre = CharFilter(
         field_name='genre__slug', lookup_expr='icontains')
     category = CharFilter(
