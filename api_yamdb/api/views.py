@@ -24,6 +24,18 @@ from api.serializers import (
     RegistrationSerializer, TokenSerializer, TitleReadSerializer)
 
 
+class CreateDestroyListViewSet(
+    # Набор представлений, который по умолчанию
+    # предоставляет операции «create ()», «destroy ()» и «list ()».
+    # https://russianblogs.com/article/84681093457/
+    mixins.CreateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
+    pass
+
+
 @api_view(["POST"])
 @permission_classes([permissions.AllowAny])
 def registration(request):
@@ -68,8 +80,9 @@ def token(request):
 
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
-    serializer_class = UsersSerializer
+    serializer_class = AdminsSerializer
     lookup_field = 'username'
+    filter_backends = [filters.SearchFilter]
     search_fields = ('username', )
     permission_classes = (IsAuthenticated, AdminOnly,) # изменила
 
@@ -81,20 +94,12 @@ class UsersViewSet(viewsets.ModelViewSet):
     def get_current_user_info(self, request):
         serializer = UsersSerializer(request.user)
         if request.method == 'PATCH':
-            if request.user.is_admin: # убрала скобки, ломалось булевое знаение
-                serializer = AdminsSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
-            else:
-                serializer = UsersSerializer(
-                    request.user,
-                    data=request.data,
-                    partial=True)
+            serializer = UsersSerializer(
+                request.user, data=request.data, partial=True
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TitleFilterSet(FilterSet):
@@ -174,18 +179,6 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, review=review)
 
 
-class CreateDestroyListViewSet(
-    # Набор представлений, который по умолчанию
-    # предоставляет операции «create ()», «destroy ()» и «list ()».
-    # https://russianblogs.com/article/84681093457/
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet,
-):
-    pass
-
-
 class CategoryViewSet(CreateDestroyListViewSet):
     lookup_field = 'slug'
     queryset = Category.objects.all()
@@ -204,3 +197,4 @@ class GenreViewSet(CreateDestroyListViewSet):
     filter_backends = (filters.SearchFilter,)
     # Поиск по названию жанра
     search_fields = ('name',)
+    lookup_field = 'slug'

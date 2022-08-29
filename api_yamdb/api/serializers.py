@@ -3,6 +3,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Comment, Genre, Review, Title, User
 from rest_framework.validators import UniqueValidator
+from rest_framework.exceptions import ValidationError
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -64,7 +65,7 @@ class UsersSerializer(serializers.ModelSerializer):
         model = User
         fields = (
             'username', 'email', 'role', 'first_name', 'last_name', 'bio')
-        read_only_field = ('role',)
+        read_only_fields = ('role',)
 
 
 class AdminsSerializer(serializers.ModelSerializer):
@@ -122,6 +123,18 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username',
         read_only=True
     )
+
+    def validate(self, data):
+        request = self.context['request']
+        author = request.user
+        title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, pk=title_id)
+        if request.method == 'POST':
+            if Review.objects.filter(title=title, author=author).exists():
+                raise ValidationError(
+                    'Нельзя оставлять 2 отзыва на одно произведение'    
+            )
+        return data
 
     class Meta:
         model = Review
