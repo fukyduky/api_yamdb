@@ -26,7 +26,7 @@ class IsAdminUserOrReadOnly(permissions.BasePermission):
         return False
 
 
-class AuthoModeratorAdmin(permissions.BasePermission):
+class AuthorModeratorAdmin(permissions.BasePermission):
     # для Review и Comment
     def has_permission(self, request, view):
         return (

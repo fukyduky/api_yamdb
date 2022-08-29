@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from reviews.models import Category, Genre, Review, Title, User
 from rest_framework import mixins, generics
 from reviews.models import Review, Title, Genre, Category, User
-from api.permissions import AuthoModeratorAdmin, IsAdminUserOrReadOnly, AdminOnly
+from api.permissions import AuthorModeratorAdmin, IsAdminUserOrReadOnly, AdminOnly
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from django.core.mail import send_mail
@@ -151,7 +151,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (AuthoModeratorAdmin,) 
+    permission_classes = (AuthorModeratorAdmin,) 
     ordering = ('id',) # добавила
 
     def get_queryset(self):
@@ -165,7 +165,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (AuthoModeratorAdmin,)
+    permission_classes = (AuthorModeratorAdmin,)
     ordering = ('-pub_date',) # добавила
 
     def get_queryset(self):
