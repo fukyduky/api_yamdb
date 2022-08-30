@@ -19,6 +19,8 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 from reviews.models import Category, Genre, Title, User
 
+from api_yamdb.settings import DEFAULT_FROM_EMAIL
+
 
 class CreateDestroyListViewSet(
     mixins.CreateModelMixin,
@@ -43,7 +45,7 @@ def registration(request):
     send_mail(
         subject='Регистрация на YaMDB',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=None,
+        from_email=DEFAULT_FROM_EMAIL,
         recipient_list=[user.email],
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
