@@ -21,21 +21,28 @@ v1_router.register(
     views.CommentViewSet,
     basename='comments',
 )
-v1_router.register(r'categories', 
+v1_router.register(
+    r'categories',
     views.CategoryViewSet,
     basename='category'
 )
-v1_router.register(r'genres',
+v1_router.register(
+    r'genres',
     views.GenreViewSet,
     basename='genre'
 )
-v1_router.register(r'titles',
+v1_router.register(
+    r'titles',
     views.TitleViewSet,
     basename='title'
 )
 
+extra_patterns = [
+    path('signup/', views.registration, name='registration'),
+    path('token/', views.token, name='token'),
+]
+
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/auth/signup/', views.registration, name='registration'), #НУЖНО ДОДЕЛАТЬ, НО
-    path('v1/auth/token/', views.token, name='token'),         #ЭНДПОЙНТЫ ВЕРНЫЕ
+    path('v1/auth/', include(extra_patterns)),
 ]

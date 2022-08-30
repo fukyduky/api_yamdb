@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'django_filters',
     'reviews',
     'api',
@@ -109,11 +110,24 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static/'),)
 
 AUTH_USER_MODEL = 'reviews.User'
 
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_HOST = 'mail.yamdb.ru'
+EMAIL_HOST_USER = 'welcome@yamdb.ru'
+EMAIL_HOST_PASSWORD = '123258S'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+DOMAIN_NAME = 'yamdb.ru'
+
+DEFAULT_FROM_EMAIL = f'admin@{DOMAIN_NAME}'
+
+EMAIL_FILE_PATH = '/tmp/sent_emails'
 
 EMAIL_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
+NOREPLY_EMAIL = 'noreply@yamdb.app'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -126,7 +140,7 @@ REST_FRAMEWORK = {
         'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', 
+        'rest_framework.permissions.IsAuthenticated',
     ],
 }
 

@@ -2,7 +2,7 @@ from rest_framework import permissions
 
 
 class AdminOnly(permissions.BasePermission):
-    # для Users
+    """Права доступа. Для viewset Users"""
     def has_permission(self, request, view):
         return (
             request.user.is_admin
@@ -17,7 +17,7 @@ class AdminOnly(permissions.BasePermission):
 
 
 class IsAdminUserOrReadOnly(permissions.BasePermission):
-    #  для Genre , Category, Title
+    """Права доступа. Для viewsets Genre, Category, Title"""
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -26,8 +26,8 @@ class IsAdminUserOrReadOnly(permissions.BasePermission):
         return False
 
 
-class AuthoModeratorAdmin(permissions.BasePermission):
-    # для Review и Comment
+class AuthorModeratorAdmin(permissions.BasePermission):
+    """Права доступа. Для viewsets Review и Comment"""
     def has_permission(self, request, view):
         return (
             request.method in permissions.SAFE_METHODS
@@ -41,12 +41,3 @@ class AuthoModeratorAdmin(permissions.BasePermission):
             or request.user.is_moderator
             or request.user.is_admin
         )
-    
-class IsUser(permissions.BasePermission):
-    allowed_user_roles = ('user', )
-
-    def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            if request.user.role in self.allowed_user_roles:
-                return True
-        return False

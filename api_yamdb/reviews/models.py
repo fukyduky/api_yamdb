@@ -2,18 +2,18 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-# вынесла из класса
-USER = 'user'
-ADMIN = 'admin'
-MODERATOR = 'moderator'
-
-ROLES = [
-    (USER, USER),
-    (ADMIN, ADMIN),
-    (MODERATOR, MODERATOR),
-]
 
 class User(AbstractUser):
+    """Пользователи"""
+    USER = 'user'
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+
+    ROLES = [
+        (USER, USER),
+        (ADMIN, ADMIN),
+        (MODERATOR, MODERATOR),
+    ]
 
     username = models.CharField(
         'Имя пользователя',
@@ -41,21 +41,18 @@ class User(AbstractUser):
         max_length=150,
         blank=True
     )
-    
-    # https://www.freecodecamp.org/news/python-property-decorator/
-    # https://www.codecamp.ru/blog/python-property-objects/
-    # про декоратор
+
     @property
     def is_user(self):
-        return self.role == USER
+        return self.role == self.USER
 
     @property
     def is_admin(self):
-        return self.role == ADMIN
+        return self.role == self.ADMIN
 
     @property
     def is_moderator(self):
-        return self.role == MODERATOR
+        return self.role == self.MODERATOR
 
     class Meta:
         ordering = ('id',)
@@ -68,22 +65,21 @@ class User(AbstractUser):
 
 class Category(models.Model):
     """Категории (типы) произведений («Фильмы», «Книги», «Музыка»)"""
-
     name = models.CharField(
         max_length=256,
-        verbose_name="Название категории",
+        verbose_name='Название категории',
     )
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        db_index=True, # добавила
-        verbose_name="Идентификатор категории",
+        db_index=True,
+        verbose_name='Идентификатор категории',
     )
 
     class Meta:
-        ordering = ["name"]
-        verbose_name = "Категория"
-        verbose_name_plural = "Категории"
+        ordering = ['name']
+        verbose_name = 'Категория'
+        verbose_name_plural = 'Категории'
 
     def __str__(self):
         return self.name
@@ -94,25 +90,26 @@ class Genre(models.Model):
 
     name = models.CharField(
         max_length=256,
-        verbose_name="Название жанра",
+        verbose_name='Название жанра',
     )
     slug = models.SlugField(
         max_length=50,
         unique=True,
-        db_index=True, # добавила
-        verbose_name="Идентификатор жанра",
+        db_index=True,
+        verbose_name='Идентификатор жанра',
     )
 
     class Meta:
-        ordering = ["name"]
-        verbose_name = "Жанр"
-        verbose_name_plural = "Жанры"
+        ordering = ['name']
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
 
     def __str__(self):
         return self.name
 
 
 class Title(models.Model):
+    """Произведения, к которым пишут отзывы"""
     name = models.CharField(
         'Название',
         max_length=50,
@@ -120,13 +117,14 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         'Год выпуска',
+        db_index=True
     )
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
         related_name='titles',
         verbose_name='Категория',
-        help_text="Категория, к которой относится произведение",
+        help_text='Категория, к которой относится произведение',
         null=True,
         blank=True
     )
@@ -143,7 +141,7 @@ class Title(models.Model):
     )
 
     class Meta:
-        ordering = ["name"]
+        ordering = ['name']
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
 
@@ -152,7 +150,7 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    """ Отзывы на произведения"""
+    """Отзывы на произведения"""
     title = models.ForeignKey(
         Title,
         verbose_name='Произведение',
@@ -185,18 +183,17 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Рецензия'
         verbose_name_plural = 'Рецензии'
-        ordering = ['pub_date']
+        ordering = ['-pub_date']
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
-                name='unique_review'
+                name='single_review'
             ),
         ]
-# https://docs.djangoproject.com/en/4.1/ref/models/constraints/#uniqueconstraint
 
 
 class Comment(models.Model):
-    """ Комментарии к отзывам"""
+    """Комментарии к отзывам"""
     review = models.ForeignKey(
         Review,
         verbose_name='Рецензия',
@@ -221,4 +218,4 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['pub_date']
+        ordering = ['-pub_date']
