@@ -37,8 +37,12 @@ v1_router.register(
     basename='title'
 )
 
+extra_patterns = [
+    path('signup/', views.registration, name='registration'),
+    path('token/', views.token, name='token'),
+]
+
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
-    path('v1/auth/signup/', views.registration, name='registration'),
-    path('v1/auth/token/', views.token, name='token'),
+    path('v1/auth/', include(extra_patterns)),
 ]

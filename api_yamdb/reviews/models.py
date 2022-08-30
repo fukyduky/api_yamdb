@@ -2,19 +2,19 @@ from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-USER = 'user'
-ADMIN = 'admin'
-MODERATOR = 'moderator'
-
-ROLES = [
-    (USER, USER),
-    (ADMIN, ADMIN),
-    (MODERATOR, MODERATOR),
-]
-
 
 class User(AbstractUser):
     """Пользователи"""
+    USER = 'user'
+    ADMIN = 'admin'
+    MODERATOR = 'moderator'
+
+    ROLES = [
+        (USER, USER),
+        (ADMIN, ADMIN),
+        (MODERATOR, MODERATOR),
+    ]
+
     username = models.CharField(
         'Имя пользователя',
         max_length=150,
@@ -44,15 +44,15 @@ class User(AbstractUser):
 
     @property
     def is_user(self):
-        return self.role == USER
+        return self.role == self.USER
 
     @property
     def is_admin(self):
-        return self.role == ADMIN
+        return self.role == self.ADMIN
 
     @property
     def is_moderator(self):
-        return self.role == MODERATOR
+        return self.role == self.MODERATOR
 
     class Meta:
         ordering = ('id',)
@@ -117,6 +117,7 @@ class Title(models.Model):
     )
     year = models.IntegerField(
         'Год выпуска',
+        db_index=True
     )
     category = models.ForeignKey(
         Category,
@@ -182,7 +183,7 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Рецензия'
         verbose_name_plural = 'Рецензии'
-        ordering = ['pub_date']
+        ordering = ['-pub_date']
         constraints = [
             models.UniqueConstraint(
                 fields=['title', 'author'],
@@ -217,4 +218,4 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-        ordering = ['pub_date']
+        ordering = ['-pub_date']

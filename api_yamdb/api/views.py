@@ -1,3 +1,10 @@
+from api.permissions import (AdminOnly, AuthorModeratorAdmin,
+                             IsAdminUserOrReadOnly)
+from api.serializers import (AdminsSerializer, CategorySerializer,
+                             CommentSerializer, GenreSerializer,
+                             RegistrationSerializer, ReviewSerializer,
+                             TitleReadSerializer, TitleSerializer,
+                             TokenSerializer, UsersSerializer)
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -10,14 +17,6 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
-from api.permissions import (AdminOnly, AuthorModeratorAdmin,
-                             IsAdminUserOrReadOnly)
-from api.serializers import (AdminsSerializer, CategorySerializer,
-                             CommentSerializer, GenreSerializer,
-                             RegistrationSerializer, ReviewSerializer,
-                             TitleReadSerializer, TitleSerializer,
-                             TokenSerializer, UsersSerializer)
 from reviews.models import Category, Genre, Title, User
 
 
@@ -35,16 +34,16 @@ class CreateDestroyListViewSet(
 def registration(request):
     serializer = RegistrationSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user = get_object_or_404(
-        User,
-        username=serializer.validated_data['username']
+    username = serializer.data['username']
+    email = serializer.data['email']
+    user, _ = User.objects.get_or_create(
+        username=username, email=email, is_active=False
     )
     confirmation_code = default_token_generator.make_token(user)
     send_mail(
         subject='Регистрация на YaMDB',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email=None,
+        from_email='welcome@yamdb.com',
         recipient_list=[user.email],
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
