@@ -43,7 +43,7 @@ def registration(request):
     send_mail(
         subject='Регистрация на YaMDB',
         message=f'Ваш код подтверждения: {confirmation_code}',
-        from_email='welcome@yamdb.com',
+        from_email=None,
         recipient_list=[user.email],
     )
     return Response(serializer.data, status=status.HTTP_200_OK)
