@@ -1,10 +1,3 @@
-from api.permissions import (AdminOnly, AuthorModeratorAdmin,
-                             IsAdminUserOrReadOnly)
-from api.serializers import (AdminsSerializer, CategorySerializer,
-                             CommentSerializer, GenreSerializer,
-                             RegistrationSerializer, ReviewSerializer,
-                             TitleReadSerializer, TitleSerializer,
-                             TokenSerializer, UsersSerializer)
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg
@@ -17,6 +10,14 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
+
+from api.permissions import (AdminOnly, AuthorModeratorAdmin,
+                             IsAdminUserOrReadOnly)
+from api.serializers import (AdminsSerializer, CategorySerializer,
+                             CommentSerializer, GenreSerializer,
+                             RegistrationSerializer, ReviewSerializer,
+                             TitleReadSerializer, TitleSerializer,
+                             TokenSerializer, UsersSerializer)
 from reviews.models import Category, Genre, Title, User
 
 
